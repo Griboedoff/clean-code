@@ -47,6 +47,7 @@
     <Compile Include="Md.cs" />
     <Compile Include="HtmlToken.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Tag.cs" />
     <Compile Include="Test\HtmlToken_Should.cs" />
     <Compile Include="Test\MD_Should.cs" />
   </ItemGroup>

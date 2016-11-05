@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Markdown
+namespace Markdown.Test
 {
 	[TestFixture]
 	public class HtmlToken_Should

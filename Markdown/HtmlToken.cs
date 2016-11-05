@@ -4,6 +4,8 @@
 	{
 		public readonly string Tag;
 		private readonly string data;
+		public bool IsTagged => !string.IsNullOrEmpty(Tag);
+		public int Length => data.Length;
 
 		public HtmlToken(string tag, string data)
 		{
@@ -13,7 +15,9 @@
 
 		private string InsertInToTags(string body)
 		{
-			return string.IsNullOrEmpty(Tag) ? body : $"<{Tag}>{body}</{Tag}>";
+			return IsTagged
+				? $"<{Tag}>{body}</{Tag}>"
+				: body;
 		}
 
 		public override string ToString()
