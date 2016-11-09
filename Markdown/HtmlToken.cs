@@ -2,23 +2,20 @@
 {
 	public class HtmlToken
 	{
-		public readonly string Tag;
+		public readonly Tag Tag;
 		private readonly string data;
-		public bool IsTagged => !string.IsNullOrEmpty(Tag);
+		public bool IsTagged => Tag != Tag.Empty;
 		public int Length => data.Length;
 
-		public HtmlToken(string tag, string data)
+		public HtmlToken(Tag tag, string data)
 		{
 			Tag = tag;
 			this.data = data;
 		}
 
-		private string InsertInToTags(string body)
-		{
-			return IsTagged
-				? $"<{Tag}>{body}</{Tag}>"
-				: body;
-		}
+		private string InsertInToTags(string body) => IsTagged
+			? $"<{Tag.MdToHtml[Tag]}>{body}</{Tag.MdToHtml[Tag]}>"
+			: body;
 
 		public override string ToString()
 		{

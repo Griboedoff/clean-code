@@ -3,7 +3,7 @@
 namespace Markdown.Test
 {
 	[TestFixture]
-	class Md_Should
+	internal class Md_Should
 	{
 		[TestCase("qwe asd zxc", ExpectedResult = "qwe asd zxc")]
 		public string ParseNoMarkup(string plainMd)
@@ -20,7 +20,8 @@ namespace Markdown.Test
 		}
 
 		[TestCase("_ d_", ExpectedResult = "_ d_")]
-		[TestCase("_a _", ExpectedResult = "_a _")]
+		[TestCase("_a _", ExpectedResult = "<em>a _</em>")]
+		[TestCase("_aas__",ExpectedResult = "_aas__")]
 		public string ParseEmTagCorrect_IfWhiteSpaceInTheStartOrEndOfToken(string plainMd)
 		{
 			return new Md(plainMd).Render();

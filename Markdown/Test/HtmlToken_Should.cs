@@ -1,16 +1,16 @@
 ﻿using NUnit.Framework;
-
+using FluentAssertions;
 namespace Markdown.Test
 {
 	[TestFixture]
 	public class HtmlToken_Should
 	{
-		[TestCase("p", "asd", ExpectedResult = "<p>asd</p>")]
-		[TestCase("i", "some text", ExpectedResult = "<i>some text</i>")]
-		public string ShouldInsertDataInToTags_WhenToStringCalls(string tag, string data)
+		[Test]
+		public void ShouldInsertDataInToTags_WhenToStringCalls()
 		{
-			var token = new HtmlToken(tag, data);
-			return token.ToString();
+			var token = new HtmlToken(Tag.EmHtml, "data");
+
+			token.ToString().Should().Be("<em>data</em>");
 		}
 	}
 }
