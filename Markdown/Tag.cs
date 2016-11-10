@@ -1,31 +1,35 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
 	public class Tag
 	{
-		public static Tag EmMd = new Tag("_");
-		public static Tag StrongMd = new Tag("__");
-		public static Tag EmHtml = new Tag("em");
-		public static Tag StrongHtml = new Tag("strong");
-		public static Tag Empty = new Tag("");
-		public readonly string Value;
+		public string Md { get; }
+		public string Html { get; }
+		public static readonly Tag Em = new Tag("_", "em");
+		public static readonly Tag Strong = new Tag("__", "strong");
+		public static readonly Tag Empty = new Tag("", "");
 
-		public static readonly Dictionary<Tag, Tag> MdToHtml = new Dictionary<Tag, Tag>
-		{
-			[EmMd] = EmHtml,
-			[StrongMd] = StrongHtml,
-			[Empty] = Empty
-		};
 
-		private Tag(string value)
+		private Tag(string md, string html)
+
 		{
-			Value = value;
+			Md = md;
+			Html = html;
 		}
 
-		public override string ToString()
+		public override bool Equals(object other)
 		{
-			return Value;
+			var tag = other as Tag;
+			if (tag == null)
+				return false;
+			return string.Equals(Md, tag.Md) && string.Equals(Html, tag.Html);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return ((Md?.GetHashCode() ?? 0) * 397) ^ (Html?.GetHashCode() ?? 0);
+			}
 		}
 	}
 }

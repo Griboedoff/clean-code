@@ -8,7 +8,7 @@ namespace Markdown.Test
 		[Test]
 		public void ShouldInsertDataInToTags_WhenToStringCalls()
 		{
-			var token = new HtmlToken(Tag.EmHtml, "data");
+			var token = new HtmlToken(Tag.Em, "data", 0);
 
 			token.ToString().Should().Be("<em>data</em>");
 		}
