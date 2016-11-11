@@ -177,11 +177,13 @@ namespace Markdown
 
 		private Tag ParseTag(int tagIndex)
 		{
-			if (plainMd[tagIndex] != '_')
-				return Tag.Empty;
-			if (tagIndex != plainMd.Length - 1)
-				return plainMd[tagIndex + 1] == '_' ? Tag.Strong : Tag.Em;
-			return Tag.Em;
+			if (plainMd[tagIndex] == '_')
+			{
+				if (tagIndex != plainMd.Length - 1)
+					return plainMd[tagIndex + 1] == '_' ? Tag.Strong : Tag.Em;
+				return Tag.Em;
+			}
+			return Tag.Empty;
 		}
 
 		private IEnumerable<HtmlToken> TryParseToHtml()
