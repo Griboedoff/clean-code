@@ -1,4 +1,11 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown.Test
 {
@@ -69,6 +76,47 @@ namespace Markdown.Test
 		public string ParseMixedTagsCorrectrly(string plainMd)
 		{
 			return new Md(plainMd).Render();
+		}
+
+		private static string GenerateMd(Tag tag, int length)
+		{
+			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+			var rnd = new Random(100);
+			return $@"{tag.Md}{new string(
+				Enumerable
+					.Repeat(chars, length)
+					.Select(s => s[rnd.Next(s.Length)])
+					.ToArray())}{tag.Md}";
+		}
+
+		[Test]
+		public void PerformanceTest()
+		{
+			var iterationWatch = new Stopwatch();
+			var parseWatch = new Stopwatch();
+			var md = new StringBuilder();
+			var rnd = new Random(10);
+			for (var i = 0; i < 1000; i++)
+				md.Append(GenerateMd(Tag.GetRandomTag(rnd), 100000));
+			var plainMd = md.ToString();
+			Console.WriteLine($"Length = {plainMd.Length}");
+
+			var c = 0;
+			iterationWatch.Start();
+			for (var i = 0; i < plainMd.Length; i++)
+				c = rnd.Next();
+			iterationWatch.Stop();
+
+			var parser = new Md(plainMd);
+			parseWatch.Start();
+			var html = parser.Render();
+			parseWatch.Stop();
+
+			Console.WriteLine(
+				$"iteration elapsed = {iterationWatch.ElapsedMilliseconds}, parse elapsed = {parseWatch.ElapsedMilliseconds}");
+			(parseWatch.ElapsedMilliseconds / iterationWatch.ElapsedMilliseconds)
+				.Should()
+				.BeLessThan(iterationWatch.ElapsedMilliseconds / 10);
 		}
 	}
 }

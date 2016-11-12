@@ -1,4 +1,7 @@
-﻿namespace Markdown
+﻿using System;
+using System.Collections.Generic;
+
+namespace Markdown
 {
 	public class Tag
 	{
@@ -7,14 +10,15 @@
 		public static readonly Tag Em = new Tag("_", "em");
 		public static readonly Tag Strong = new Tag("__", "strong");
 		public static readonly Tag Empty = new Tag("", "");
-
+		private static readonly List<Tag> Tags = new List<Tag> {Em, Strong, Empty};
 
 		private Tag(string md, string html)
-
 		{
 			Md = md;
 			Html = html;
 		}
+
+		public static Tag GetRandomTag(Random rnd) => Tags[rnd.Next(Tags.Count)];
 
 		public override bool Equals(object other)
 		{
