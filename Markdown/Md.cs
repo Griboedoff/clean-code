@@ -132,13 +132,21 @@ namespace Markdown
 		}
 
 		private bool NotInsideDigits(int tagIndex)
-			=> !char.IsDigit(plainMd[tagIndex - 1]) && !char.IsDigit(plainMd[tagIndex + 1]);
+		{
+			if (tagIndex + 1 == plainMd.Length || tagIndex - 1 == -1)
+				return true;
+			return !char.IsDigit(plainMd[tagIndex - 1]) && !char.IsDigit(plainMd[tagIndex + 1]);
+		}
 
 		private bool IsNotStrongTag(int tagIndex)
-			=> !(plainMd[tagIndex - 1] == '_' || plainMd[tagIndex + 1] == '_');
+			=> !(tagIndex - 1 != -1 && plainMd[tagIndex - 1] == '_' ||
+			     tagIndex + 1 != plainMd.Length && plainMd[tagIndex + 1] == '_');
 
 		private bool NoSpaceNearMdTag(int tagIndex, int tagLength, bool isOpenTag)
-			=> plainMd[tagIndex + (isOpenTag ? tagLength : -1)] != ' ';
+		{
+			var nextIndex = tagIndex + (isOpenTag ? tagLength : -1);
+			return nextIndex >= 0 && nextIndex < plainMd.Length && plainMd[nextIndex] != ' ';
+		}
 
 		private bool IsNotOpenTagInEndOfString(int tagIndex, int tagLength, bool isOpenTag)
 			=> !(tagIndex == plainMd.Length - tagLength && isOpenTag);
@@ -147,32 +155,18 @@ namespace Markdown
 		{
 			if (plainMd[tagIndex] != '_')
 				return false;
-			try
-			{
-				return IsNotOpenTagInEndOfString(tagIndex, 1, isOpenTag)
-				       && NoSpaceNearMdTag(tagIndex, 1, isOpenTag)
-				       && IsNotStrongTag(tagIndex)
-				       && NotInsideDigits(tagIndex);
-			}
-			catch (IndexOutOfRangeException)
-			{
-				return true;
-			}
+			return IsNotOpenTagInEndOfString(tagIndex, 1, isOpenTag)
+			       && NoSpaceNearMdTag(tagIndex, 1, isOpenTag)
+			       && IsNotStrongTag(tagIndex)
+			       && NotInsideDigits(tagIndex);
 		}
 
 		private bool IsValidStrongTag(int tagIndex, bool isOpenTag)
 		{
 			if (plainMd[tagIndex] != '_' || !ParseTag(tagIndex).Equals(Tag.Strong))
 				return false;
-			try
-			{
-				return IsNotOpenTagInEndOfString(tagIndex, 2, isOpenTag)
-				       && NoSpaceNearMdTag(tagIndex, 2, isOpenTag);
-			}
-			catch (IndexOutOfRangeException)
-			{
-				return true;
-			}
+			return IsNotOpenTagInEndOfString(tagIndex, 2, isOpenTag)
+			       && NoSpaceNearMdTag(tagIndex, 2, isOpenTag);
 		}
 
 		private Tag ParseTag(int tagIndex)

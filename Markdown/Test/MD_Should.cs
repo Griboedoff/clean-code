@@ -40,6 +40,7 @@ namespace Markdown.Test
 		}
 
 		[TestCase(@"_a\_b_", ExpectedResult = "<em>a_b</em>")]
+		[TestCase(@"__a\_b__", ExpectedResult = "<strong>a_b</strong>")]
 		[TestCase(@"a\_b", ExpectedResult = "a_b")]
 		public string ParseEscapedCorrectly(string plainMd)
 		{
