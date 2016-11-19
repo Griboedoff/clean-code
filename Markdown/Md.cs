@@ -11,10 +11,12 @@ namespace Markdown
 
 		private readonly Dictionary<Tag, Func<int, string, int, HtmlToken>> mdTagParserFuncMatch;
 		private readonly Dictionary<Tag, Func<int, bool, bool>> validateFunctions;
+		private readonly string baseUrl;
 
-		public Md(string plainMd)
+		public Md(string plainMd, string baseUrl = "")
 		{
 			this.plainMd = plainMd;
+			this.baseUrl = baseUrl;
 			mdTagParserFuncMatch = new Dictionary<Tag, Func<int, string, int, HtmlToken>>
 			{
 				[Tag.Em] = ParseEmToken,
