@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using FluentAssertions;
+using Markdown.Tokens;
+
 namespace Markdown.Test
 {
 	[TestFixture]
@@ -9,7 +11,7 @@ namespace Markdown.Test
 		[Test]
 		public void ShouldInsertDataInToTags_WhenToStringCalls()
 		{
-			var token = new HtmlToken(Tag.Em, "data", 0);
+			var token = new EmHtmlToken("data", 0);
 
 			token.ToString().Should().Be("<em>data</em>");
 		}
@@ -19,12 +21,12 @@ namespace Markdown.Test
 		{
 			var tokenList = new List<HtmlToken>
 			{
-				new HtmlToken(Tag.Em, "italic", 0),
-				new HtmlToken(Tag.Empty, "empty", 0),
-				new HtmlToken(Tag.Strong, "bold", 0)
+				new EmHtmlToken("italic", 0),
+				new EmptyHtmlToken("empty", 0),
+				new StrongHtmlToken("bold", 0)
 			};
 
-			var token = new HtmlToken(Tag.Strong, tokenList, 0);
+			var token = new StrongHtmlToken(tokenList, 0);
 			token.ToString().Should().Be("<strong><em>italic</em>empty<strong>bold</strong></strong>");
 		}
 	}

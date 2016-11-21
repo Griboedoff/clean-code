@@ -76,6 +76,12 @@ namespace Markdown.Test
 			return new Md(plainMd).Render();
 		}
 
+		[TestCase("[url](www.url.com)", ExpectedResult = "<a href=\"www.url.com\">url</a>")]
+		public string ParseUrlTagCorrectrly(string plainMd)
+		{
+			return new Md(plainMd).Render();
+		}
+
 		private static string GenerateMd(Tag tag, int length)
 		{
 			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -107,7 +113,7 @@ namespace Markdown.Test
 
 			var parser = new Md(plainMd);
 			parseWatch.Start();
-			var html = parser.Render();
+			parser.Render();
 			parseWatch.Stop();
 
 			Console.WriteLine(

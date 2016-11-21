@@ -10,6 +10,7 @@ namespace Markdown
 		public static readonly Tag Em = new Tag("_", "em");
 		public static readonly Tag Strong = new Tag("__", "strong");
 		public static readonly Tag Empty = new Tag("", "");
+		public static readonly Tag A = new Tag("", "a");
 		private static readonly List<Tag> Tags = new List<Tag> {Em, Strong, Empty};
 
 		private Tag(string md, string html)
