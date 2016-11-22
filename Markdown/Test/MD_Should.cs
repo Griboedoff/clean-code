@@ -68,6 +68,33 @@ namespace Markdown.Test
 			return new Md(plainMd).Render();
 		}
 
+		[TestCase("[url](www.url.com)", "", ExpectedResult = "<a href=\"www.url.com\">url</a>")]
+		[TestCase("[url](/url)", "www.base.com", ExpectedResult = "<a href=\"www.base.com/url\">url</a>")]
+		[TestCase("[url](www.url.com)\n[url](/url)", "www.base.com",
+			 ExpectedResult = "<a href=\"www.url.com\">url</a>\n<a href=\"www.base.com/url\">url</a>")]
+		public string ParseUrlTagCorrectrly(string plainMd, string baseUrl)
+		{
+			return new Md(plainMd, baseUrl).Render();
+		}
+
+		[TestCase("_asd_", "css", "", ExpectedResult = "<em class=\"css\">asd</em>", TestName = "No def")]
+		[TestCase("_asd_ __qwe__", "css", "", ExpectedResult = "<em class=\"css\">asd</em> <strong class=\"css\">qwe</strong>",
+			 TestName = "No def, may tags")]
+		[TestCase("_asd_", "css", "definition", ExpectedResult = "definition<em class=\"css\">asd</em>", TestName = "Defined")
+		]
+		public string ParseWithDefinedCss(string plainMd, string cssClassName, string cssClassDef)
+		{
+			var css = new CssClassInfo(cssClassName, cssClassDef);
+
+			return new Md(plainMd, "", css).Render();
+		}
+
+		[TestCase("asd", ExpectedResult = "<p>asd</p>")]
+		public string ParseParagraphsCorrectly(string plainMd)
+		{
+			return new Md(plainMd).Render();
+		}
+
 		[TestCase("r _i_ r _i_", ExpectedResult = "r <em>i</em> r <em>i</em>")]
 		[TestCase("r __b__ r __b__", ExpectedResult = "r <strong>b</strong> r <strong>b</strong>")]
 		[TestCase("_i_ __b__ r", ExpectedResult = "<em>i</em> <strong>b</strong> r")]
@@ -76,21 +103,26 @@ namespace Markdown.Test
 			return new Md(plainMd).Render();
 		}
 
-		[TestCase("[url](www.url.com)", ExpectedResult = "<a href=\"www.url.com\">url</a>")]
-		public string ParseUrlTagCorrectrly(string plainMd)
-		{
-			return new Md(plainMd).Render();
-		}
 
 		private static string GenerateMd(Tag tag, int length)
 		{
 			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 			var rnd = new Random(100);
-			return $@"{tag.Md}{new string(
-				Enumerable
-					.Repeat(chars, length)
-					.Select(s => s[rnd.Next(s.Length)])
-					.ToArray())}{tag.Md}";
+			return tag.Equals(Tag.A)
+				? $@"[{new string(
+					Enumerable
+						.Repeat(chars, length)
+						.Select(s => s[rnd.Next(s.Length)])
+						.ToArray())}]({new string(
+					Enumerable
+						.Repeat(chars, length)
+						.Select(s => s[rnd.Next(s.Length)])
+						.ToArray())})"
+				: $@"{tag.Md}{new string(
+					Enumerable
+						.Repeat(chars, length)
+						.Select(s => s[rnd.Next(s.Length)])
+						.ToArray())}{tag.Md}";
 		}
 
 		[Test]

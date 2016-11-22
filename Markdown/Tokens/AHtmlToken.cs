@@ -5,14 +5,14 @@ namespace Markdown.Tokens
 	public class AHtmlToken : HtmlToken
 	{
 		private readonly string url;
-		private readonly bool isReferece;
+		private readonly string baseUrl;
+		private bool IsReferece => url.StartsWith("/");
 		public override int Length => Data.Length + url.Length + 4 + escapedCharacters;
-		public static readonly Dictionary<string, string> ReferenceUrlsBase = new Dictionary<string, string>();
 
-		public AHtmlToken(string data, string url, int escapedCharacters) : base("a", data, escapedCharacters)
+		public AHtmlToken(string data, string url, int escapedCharacters, string baseUrl) : base("a", data, escapedCharacters)
 		{
 			this.url = url;
-			this.isReferece = isReferece;
+			this.baseUrl = baseUrl;
 		}
 
 		public AHtmlToken(List<HtmlToken> parsedTokens, int escapedCharacters)
@@ -20,16 +20,10 @@ namespace Markdown.Tokens
 		{
 		}
 
-		public static void AddReferenceUrlBase(string url, string name)
+		public override string Render(CssClassInfo cssClassInfo)
 		{
-			ReferenceUrlsBase[name] = url;
-		}
-
-		public override string ToString()
-		{
-			if (!isReferece)
-				return $"<a href=\"{url}\">{Data}</a>";
-			return "";
+			var buildedUrl = !IsReferece ? url : string.Join("", baseUrl, url);
+			return $"<a href=\"{buildedUrl}\"{GetCssClassDef(cssClassInfo)}>{Data}</a>";
 		}
 	}
 }

@@ -30,15 +30,20 @@ namespace Markdown.Tokens
 			this.escapedCharacters = escapedCharacters;
 		}
 
-		protected virtual string InsertInToTags(string dataToInsert) => IsTagged
-			? $"<{Tag}>{dataToInsert}</{Tag}>"
+		protected virtual string InsertInToTags(string dataToInsert, CssClassInfo cssClassInfo) => IsTagged
+			? $"<{Tag}{GetCssClassDef(cssClassInfo)}>{dataToInsert}</{Tag}>"
 			: dataToInsert;
 
-		public override string ToString()
+		protected static string GetCssClassDef(CssClassInfo cssClassInfo)
+		{
+			return cssClassInfo == null ? "" : $" class=\"{cssClassInfo.ClassName}\"";
+		}
+
+		public virtual string Render(CssClassInfo cssClassInfo)
 		{
 			return ParsedTokens.Count > 0
-				? InsertInToTags(string.Join("", ParsedTokens.Select(token => token.ToString())))
-				: InsertInToTags(Data);
+				? InsertInToTags(string.Join("", ParsedTokens.Select(token => token.Render(cssClassInfo))), cssClassInfo)
+				: InsertInToTags(Data, cssClassInfo);
 		}
 	}
 }

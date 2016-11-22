@@ -9,14 +9,18 @@ namespace Markdown
 	public class Md
 	{
 		private readonly string plainMd;
+		private readonly string baseUrl;
+		private readonly CssClassInfo cssClassInfo;
 
 		private readonly Dictionary<Tag, Func<int, string, int, HtmlToken>> mdTagParserFuncMatch;
 		private readonly Dictionary<Tag, Func<int, bool, bool>> validateFunctions;
 
-
-		public Md(string plainMd)
+		public Md(string plainMd, string baseUrl = "", CssClassInfo cssClassInfo = null)
 		{
 			this.plainMd = plainMd;
+			this.baseUrl = baseUrl;
+			this.cssClassInfo = cssClassInfo;
+
 			mdTagParserFuncMatch = new Dictionary<Tag, Func<int, string, int, HtmlToken>>
 			{
 				[Tag.Em] = ParseEmToken,
@@ -28,7 +32,8 @@ namespace Markdown
 			{
 				[Tag.Em] = IsValidEmTag,
 				[Tag.Strong] = IsValidStrongTag,
-				[Tag.Empty] = (i, b) => false
+				[Tag.Empty] = (i, b) => false,
+				[Tag.A] = IsValidATag
 			};
 		}
 
@@ -102,17 +107,6 @@ namespace Markdown
 				: new EmptyHtmlToken(tokenData.Insert(0, "__").ToString(), alreadyEscaped);
 		}
 
-		private HtmlToken ParseEmInStrong(ref int index, ref int alreadyEscaped,
-			ICollection<HtmlToken> parsedTokens, StringBuilder tokenData)
-		{
-			parsedTokens.Add(new EmptyHtmlToken(tokenData.ToString(), alreadyEscaped));
-			alreadyEscaped = 0;
-			tokenData.Clear();
-			var htmlToken = ParseEmToken(index);
-			index += htmlToken.Length;
-			return htmlToken;
-		}
-
 		private HtmlToken ParseNoMarkup(int index, string alreadyParsed = "", int alreadyEscaped = 0)
 		{
 			var tokenData = new StringBuilder(alreadyParsed);
@@ -136,23 +130,19 @@ namespace Markdown
 
 		private HtmlToken ParseUrl(int index, string alreadyParsed = "", int alreadyEscaped = 0)
 		{
-			var url = new StringBuilder();
 			var returnedValue = ParseInsideBracers(']', index, alreadyEscaped, alreadyParsed);
-			var escaped = returnedValue.Escaped;
-			index = returnedValue.Index;
-			var urlText = returnedValue.Data;
+			var escaped = returnedValue.Item2;
+			index = returnedValue.Item1;
+			var urlText = returnedValue.Item3;
 
-			if (plainMd[index] == '(')
-			{
-				returnedValue = ParseInsideBracers(')', index, alreadyEscaped, alreadyParsed);
-				index = returnedValue.Index;
-				return new AHtmlToken((string) urlText, returnedValue.Data, escaped + returnedValue.Escaped);
-			}
-
-			throw new MdParserException($"Can't parse link at index {index}");
+			if (plainMd[index] != '(')
+				throw new MdParserException($"Can't parse link at index {index}");
+			returnedValue = ParseInsideBracers(')', index, alreadyEscaped, alreadyParsed);
+			index = returnedValue.Item1;
+			return new AHtmlToken(urlText, returnedValue.Item3, escaped + returnedValue.Item2, baseUrl);
 		}
 
-		private dynamic ParseInsideBracers(char closeBracer, int index, int escaped, string alreadyParsed)
+		private Tuple<int, int, string> ParseInsideBracers(char closeBracer, int index, int escaped, string alreadyParsed)
 		{
 			var data = new StringBuilder(alreadyParsed);
 			index++;
@@ -168,25 +158,18 @@ namespace Markdown
 			}
 			index++;
 			var dataStr = data.ToString();
-			return new
-			{
-				Index = index,
-				Escaped = escaped,
-				Data = dataStr
-			};
+			return Tuple.Create(index, escaped, dataStr);
 		}
 
-		private Tag ParseTag(int tagIndex)
+		private HtmlToken ParseEmInStrong(ref int index, ref int alreadyEscaped,
+			ICollection<HtmlToken> parsedTokens, StringBuilder tokenData)
 		{
-			if (plainMd[tagIndex] == '[')
-				return Tag.A;
-			if (plainMd[tagIndex] == '_')
-			{
-				if (tagIndex != plainMd.Length - 1)
-					return plainMd[tagIndex + 1] == '_' ? Tag.Strong : Tag.Em;
-				return Tag.Em;
-			}
-			return Tag.Empty;
+			parsedTokens.Add(new EmptyHtmlToken(tokenData.ToString(), alreadyEscaped));
+			alreadyEscaped = 0;
+			tokenData.Clear();
+			var htmlToken = ParseEmToken(index);
+			index += htmlToken.Length;
+			return htmlToken;
 		}
 
 		private bool NotInsideDigits(int tagIndex)
@@ -197,8 +180,10 @@ namespace Markdown
 		}
 
 		private bool IsNotStrongTag(int tagIndex)
-			=> !(tagIndex - 1 != -1 && plainMd[tagIndex - 1] == '_' ||
-			     tagIndex + 1 != plainMd.Length && plainMd[tagIndex + 1] == '_');
+		{
+			return !(tagIndex - 1 != -1 && plainMd[tagIndex - 1] == '_' ||
+			         tagIndex + 1 != plainMd.Length && plainMd[tagIndex + 1] == '_');
+		}
 
 		private bool NoSpaceNearMdTag(int tagIndex, int tagLength, bool isOpenTag)
 		{
@@ -207,7 +192,9 @@ namespace Markdown
 		}
 
 		private bool IsNotOpenTagInEndOfString(int tagIndex, int tagLength, bool isOpenTag)
-			=> !(tagIndex == plainMd.Length - tagLength && isOpenTag);
+		{
+			return !(tagIndex == plainMd.Length - tagLength && isOpenTag);
+		}
 
 		private bool IsValidEmTag(int tagIndex, bool isOpenTag)
 		{
@@ -227,6 +214,26 @@ namespace Markdown
 			       && NoSpaceNearMdTag(tagIndex, 2, isOpenTag);
 		}
 
+		private bool IsValidATag(int tagIndex, bool isOpenTag)
+		{
+			return plainMd[tagIndex] == '[';
+		}
+
+		private Tag ParseTag(int tagIndex)
+		{
+			if (plainMd[tagIndex] == '[')
+			{
+				return Tag.A;
+			}
+			if (plainMd[tagIndex] == '_')
+			{
+				if (tagIndex != plainMd.Length - 1)
+					return plainMd[tagIndex + 1] == '_' ? Tag.Strong : Tag.Em;
+				return Tag.Em;
+			}
+			return Tag.Empty;
+		}
+
 		private IEnumerable<HtmlToken> TryParseToHtml()
 		{
 			var i = 0;
@@ -244,7 +251,9 @@ namespace Markdown
 		public string Render()
 		{
 			var htmlTokens = TryParseToHtml();
-			return string.Join("", htmlTokens.Select(x => x.ToString()));
+			return string.Join("",
+				cssClassInfo == null ? "" : cssClassInfo.Description,
+				string.Join("", htmlTokens.Select(x => x.Render(cssClassInfo))));
 		}
 	}
 }

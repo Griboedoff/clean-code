@@ -13,7 +13,7 @@ namespace Markdown.Test
 		{
 			var token = new EmHtmlToken("data", 0);
 
-			token.ToString().Should().Be("<em>data</em>");
+			token.Render(null).Should().Be("<em>data</em>");
 		}
 
 		[Test]
@@ -27,7 +27,7 @@ namespace Markdown.Test
 			};
 
 			var token = new StrongHtmlToken(tokenList, 0);
-			token.ToString().Should().Be("<strong><em>italic</em>empty<strong>bold</strong></strong>");
+			token.Render(null).Should().Be("<strong><em>italic</em>empty<strong>bold</strong></strong>");
 		}
 	}
 }

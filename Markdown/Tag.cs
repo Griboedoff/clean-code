@@ -19,7 +19,10 @@ namespace Markdown
 			Html = html;
 		}
 
-		public static Tag GetRandomTag(Random rnd) => Tags[rnd.Next(Tags.Count)];
+		public static Tag GetRandomTag(Random rnd)
+		{
+			return Tags[rnd.Next(Tags.Count)];
+		}
 
 		public override bool Equals(object other)
 		{
