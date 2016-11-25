@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using Markdown.Tokens;
 
@@ -14,7 +12,7 @@ namespace Markdown
 		private readonly string baseUrl;
 		private readonly CssClassInfo cssClassInfo;
 
-		private readonly Dictionary<Tag, Func<string, int, string, int, HtmlToken>> mdTagParserFuncMatch;
+		private readonly Dictionary<Tag, Func<string, int, string, int, HtmlToken>> stringTagParserFuncMatch;
 
 		private static readonly Dictionary<Tag, Func<string, int, bool, bool>> ValidateFunctions = new Dictionary
 			<Tag, Func<string, int, bool, bool>>
@@ -25,6 +23,8 @@ namespace Markdown
 				[Tag.A] = IsValidATag
 			};
 
+		private readonly Dictionary<LineType, Func<HtmlToken>> lineTagParserFuncMatch;
+
 		private int currLineIndex;
 		private string CurrLine => plainMd[currLineIndex];
 
@@ -34,19 +34,34 @@ namespace Markdown
 			this.baseUrl = baseUrl;
 			this.cssClassInfo = cssClassInfo;
 
-			mdTagParserFuncMatch = new Dictionary<Tag, Func<string, int, string, int, HtmlToken>>
+			stringTagParserFuncMatch = new Dictionary<Tag, Func<string, int, string, int, HtmlToken>>
 			{
-				[Tag.Em] = ParseEmToken,
+				[Tag.Em] = ParseItalic,
 				[Tag.Empty] = ParseNoMarkup,
-				[Tag.Strong] = ParseStrongToken,
-				[Tag.A] = ParseUrl
+				[Tag.Strong] = ParseBold,
+				[Tag.A] = ParseUrl,
 			};
 
+			lineTagParserFuncMatch = new Dictionary<LineType, Func<HtmlToken>>
+			{
+				[LineType.Header] = ParseHeader,
+				[LineType.Simple] = ParseParagraph
+			};
 
 			currLineIndex = 0;
 		}
 
-		private static HtmlToken ParseEmToken(string currLine, int index, string alreadyParsed = "", int alreadyEscaped = 0)
+		private HtmlToken ParseHeader()
+		{
+			var headerText = CurrLine.Replace("#", "");
+			headerText = headerText.Replace("\\", "");
+
+			var headerImportance = CurrLine.Length - headerText.Length;
+
+			return new HHtmlToken(headerText, headerImportance);
+		}
+
+		private static HtmlToken ParseItalic(string currLine, int index, string alreadyParsed = "", int alreadyEscaped = 0)
 		{
 			if (!IsValidEmTag(currLine, index, true))
 				return ParseNoMarkup(currLine, index);
@@ -80,7 +95,7 @@ namespace Markdown
 				: new EmptyHtmlToken(tokenData.Insert(0, '_').ToString(), alreadyEscaped);
 		}
 
-		private static HtmlToken ParseStrongToken(string currLine, int index, string alreadyParsed = "",
+		private static HtmlToken ParseBold(string currLine, int index, string alreadyParsed = "",
 			int alreadyEscaped = 0)
 		{
 			if (!IsValidStrongTag(currLine, index, true))
@@ -155,13 +170,15 @@ namespace Markdown
 		{
 			var innerTags = new List<HtmlToken>();
 
-			while (currLineIndex < plainMd.Length && !string.IsNullOrWhiteSpace(CurrLine))
+			while (currLineIndex < plainMd.Length
+			       && !string.IsNullOrWhiteSpace(CurrLine)
+			       && GetLineTypeTag(CurrLine) == LineType.Simple)
 			{
 				var i = 0;
 				while (i < CurrLine.Length)
 				{
 					var tag = ParseTag(CurrLine, i);
-					var parsedToken = mdTagParserFuncMatch[tag].Invoke(CurrLine, i, "", 0);
+					var parsedToken = stringTagParserFuncMatch[tag].Invoke(CurrLine, i, "", 0);
 					i += parsedToken.Length;
 					innerTags.Add(parsedToken);
 				}
@@ -197,7 +214,7 @@ namespace Markdown
 			parsedTokens.Add(new EmptyHtmlToken(tokenData.ToString(), alreadyEscaped));
 			alreadyEscaped = 0;
 			tokenData.Clear();
-			var htmlToken = ParseEmToken(currLine, index);
+			var htmlToken = ParseItalic(currLine, index);
 			index += htmlToken.Length;
 			return htmlToken;
 		}
@@ -255,11 +272,18 @@ namespace Markdown
 				return Tag.A;
 			if (currLine[tagIndex] != '_')
 				return Tag.Empty;
-			if (tagIndex != currLine.Length - 1)
-				return currLine[tagIndex + 1] == '_'
-					? Tag.Strong
-					: Tag.Em;
-			return Tag.Em;
+			if (tagIndex == currLine.Length - 1)
+				return Tag.Em;
+			return currLine[tagIndex + 1] == '_'
+				? Tag.Strong
+				: Tag.Em;
+		}
+
+		private static LineType GetLineTypeTag(string currLine)
+		{
+			if (currLine.StartsWith("#"))
+				return LineType.Header;
+			return LineType.Simple;
 		}
 
 		private IEnumerable<HtmlToken> TryParseToHtml()
@@ -268,8 +292,11 @@ namespace Markdown
 
 			while (currLineIndex < plainMd.Length)
 			{
-				root.Add(ParseParagraph());
-				currLineIndex++;
+				var htmlToken = lineTagParserFuncMatch[GetLineTypeTag(CurrLine)].Invoke();
+				root.Add(htmlToken);
+				do
+					currLineIndex++;
+				while (currLineIndex < plainMd.Length && string.IsNullOrWhiteSpace(CurrLine));
 			}
 
 			return root;

@@ -19,7 +19,7 @@ namespace Markdown.Tokens
 		{
 			Tag = tag;
 			Data = data;
-			this.EscapedCharacters = escapedCharacters;
+			EscapedCharacters = escapedCharacters;
 			ParsedTokens = new List<HtmlToken>();
 		}
 

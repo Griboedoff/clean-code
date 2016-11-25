@@ -77,11 +77,13 @@ namespace Markdown.Test
 			return new Md(plainMd, baseUrl).Render();
 		}
 
-		[TestCase("_asd_", "css", "", ExpectedResult = "<p class=\"css\"><em class=\"css\">asd</em></p>", TestName = "No def")]
+		[TestCase("_asd_", "css", "", ExpectedResult = "<p class=\"css\"><em class=\"css\">asd</em></p>", TestName = "No def")
+		]
 		[TestCase("_asd_ __qwe__", "css", "",
 			 ExpectedResult = "<p class=\"css\"><em class=\"css\">asd</em> <strong class=\"css\">qwe</strong></p>",
 			 TestName = "No def, may tags")]
-		[TestCase("_asd_", "css", "definition\n", ExpectedResult = "definition\n<p class=\"css\"><em class=\"css\">asd</em></p>",
+		[TestCase("_asd_", "css", "definition\n",
+			 ExpectedResult = "definition\n<p class=\"css\"><em class=\"css\">asd</em></p>",
 			 TestName = "Defined")
 		]
 		public string ParseWithDefinedCss(string plainMd, string cssClassName, string cssClassDef)
@@ -92,10 +94,12 @@ namespace Markdown.Test
 		}
 
 		[TestCase("asd", ExpectedResult = "<p>asd</p>")]
+		[TestCase("q\nb\nc", ExpectedResult = "<p>q</p><p>b</p><p>c</p>")]
 		public string ParseParagraphsCorrectly(string plainMd)
 		{
 			return new Md(plainMd).Render();
 		}
+
 
 		[TestCase("r _i_ r _i_", ExpectedResult = "<p>r <em>i</em> r <em>i</em></p>")]
 		[TestCase("r __b__ r __b__", ExpectedResult = "<p>r <strong>b</strong> r <strong>b</strong></p>")]
@@ -105,6 +109,12 @@ namespace Markdown.Test
 			return new Md(plainMd).Render();
 		}
 
+		[TestCase("##qwe", ExpectedResult = "<h2>qwe</h2>")]
+		[TestCase("qwe\n##qwe\nqwe", ExpectedResult = "<p>qwe</p><h2>qwe</h2><p>qwe</p>")]
+		public string ParseHeaderCorrectly(string plainMd)
+		{
+			return new Md(plainMd).Render();
+		}
 
 		private static string GenerateMdTag(Tag tag, int length)
 		{
@@ -145,10 +155,10 @@ namespace Markdown.Test
 			var plainMd = GenerateMd(rnd);
 			Console.WriteLine($"Length = {plainMd.Length}");
 
-			var c = 0;
 			iterationWatch.Start();
 			for (var i = 0; i < plainMd.Length; i++)
-				c = rnd.Next();
+				// ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+				rnd.Next();
 			iterationWatch.Stop();
 
 			var parser = new Md(plainMd);
