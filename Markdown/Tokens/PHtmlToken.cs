@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.Tokens
 {
@@ -11,5 +12,6 @@ namespace Markdown.Tokens
 		public PHtmlToken(List<HtmlToken> parsedTokens) : base("p", parsedTokens, 0)
 		{
 		}
+
 	}
 }

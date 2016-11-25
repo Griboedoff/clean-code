@@ -27,12 +27,20 @@ namespace Markdown.Tokens
 		{
 			Tag = tag;
 			ParsedTokens = parsedTokens;
-			this.EscapedCharacters = escapedCharacters;
+			EscapedCharacters = escapedCharacters;
 		}
 
-		protected virtual string InsertInToTags(string dataToInsert, CssClassInfo cssClassInfo) => IsTagged
-			? $"<{Tag}{GetCssClassDef(cssClassInfo)}>{dataToInsert}</{Tag}>"
-			: dataToInsert;
+		protected virtual string InsertInToTags(string dataToInsert, CssClassInfo cssClassInfo)
+		{
+			return IsTagged
+				? InsertInToTags(Tag, dataToInsert, cssClassInfo)
+				: dataToInsert;
+		}
+
+		protected virtual string InsertInToTags(string tag, string dataToInsert, CssClassInfo cssClassInfo)
+		{
+			return $"<{tag}{GetCssClassDef(cssClassInfo)}>{dataToInsert}</{tag}>";
+		}
 
 		protected static string GetCssClassDef(CssClassInfo cssClassInfo)
 		{

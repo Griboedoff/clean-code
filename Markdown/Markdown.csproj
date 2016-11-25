@@ -61,6 +61,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Tokens\AHtmlToken.cs" />
+    <Compile Include="Tokens\CodeHtmlToken.cs" />
     <Compile Include="Tokens\EmHtmlToken.cs" />
     <Compile Include="Tokens\EmptyHtmlToken.cs" />
     <Compile Include="Tokens\HHtmlToken.cs" />

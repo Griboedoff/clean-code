@@ -71,7 +71,7 @@ namespace Markdown.Test
 		[TestCase("[url](www.url.com)", "", ExpectedResult = "<p><a href=\"www.url.com\">url</a></p>")]
 		[TestCase("[url](/url)", "www.base.com", ExpectedResult = "<p><a href=\"www.base.com/url\">url</a></p>")]
 		[TestCase("[url](www.url.com)\n[url](/url)", "www.base.com",
-			 ExpectedResult = "<p><a href=\"www.url.com\">url</a></p><p><a href=\"www.base.com/url\">url</a></p>")]
+			 ExpectedResult = "<p><a href=\"www.url.com\">url</a>\n<a href=\"www.base.com/url\">url</a></p>")]
 		public string ParseUrlTagCorrectrly(string plainMd, string baseUrl)
 		{
 			return new Md(plainMd, baseUrl).Render();
@@ -94,12 +94,12 @@ namespace Markdown.Test
 		}
 
 		[TestCase("asd", ExpectedResult = "<p>asd</p>")]
-		[TestCase("q\nb\nc", ExpectedResult = "<p>q</p><p>b</p><p>c</p>")]
+		[TestCase("q\nb\nc", ExpectedResult = "<p>q\nb\nc</p>")]
+		[TestCase("q\n\nb", ExpectedResult = "<p>q</p><p>b</p>")]
 		public string ParseParagraphsCorrectly(string plainMd)
 		{
 			return new Md(plainMd).Render();
 		}
-
 
 		[TestCase("r _i_ r _i_", ExpectedResult = "<p>r <em>i</em> r <em>i</em></p>")]
 		[TestCase("r __b__ r __b__", ExpectedResult = "<p>r <strong>b</strong> r <strong>b</strong></p>")]
@@ -112,6 +112,14 @@ namespace Markdown.Test
 		[TestCase("##qwe", ExpectedResult = "<h2>qwe</h2>")]
 		[TestCase("qwe\n##qwe\nqwe", ExpectedResult = "<p>qwe</p><h2>qwe</h2><p>qwe</p>")]
 		public string ParseHeaderCorrectly(string plainMd)
+		{
+			return new Md(plainMd).Render();
+		}
+
+		[TestCase("    This is a code block.", ExpectedResult = "<pre><code>This is a code block.</code></pre>")]
+		[TestCase("Here is an example of AppleScript:\n\ttell application \"Foo\"\n\t\tbeep\n\tend tell",
+			 ExpectedResult = "<p>Here is an example of AppleScript:</p><pre><code>tell application \"Foo\"\n\tbeep\nend tell</code></pre>")]
+		public string 	ParseCodeBlocksCorrectly(string plainMd)
 		{
 			return new Md(plainMd).Render();
 		}

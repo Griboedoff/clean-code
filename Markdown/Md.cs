@@ -27,10 +27,11 @@ namespace Markdown
 
 		private int currLineIndex;
 		private string CurrLine => plainMd[currLineIndex];
+		private bool IsInPlainMd => currLineIndex < plainMd.Length;
 
 		public Md(string plainMd, string baseUrl = "", CssClassInfo cssClassInfo = null)
 		{
-			this.plainMd = plainMd.Replace("\n", "\0\n\0").Split('\0');
+			this.plainMd = plainMd.Split('\n');
 			this.baseUrl = baseUrl;
 			this.cssClassInfo = cssClassInfo;
 
@@ -45,7 +46,8 @@ namespace Markdown
 			lineTagParserFuncMatch = new Dictionary<LineType, Func<HtmlToken>>
 			{
 				[LineType.Header] = ParseHeader,
-				[LineType.Simple] = ParseParagraph
+				[LineType.Simple] = ParseParagraph,
+				[LineType.CodeBlock] = ParseCodeBlock
 			};
 
 			currLineIndex = 0;
@@ -58,7 +60,47 @@ namespace Markdown
 
 			var headerImportance = CurrLine.Length - headerText.Length;
 
+			currLineIndex++;
 			return new HHtmlToken(headerText, headerImportance);
+		}
+
+		private HtmlToken ParseCodeBlock()
+		{
+			var builder = new StringBuilder();
+
+			while (IsInPlainMd && GetLineTypeTag(CurrLine) == LineType.CodeBlock)
+			{
+				builder.Append(CurrLine.Substring(CurrLine.StartsWith("\t") ? 1 : 4));
+				builder.Append("\n");
+				currLineIndex++;
+
+			}
+
+			builder.Remove(builder.Length - 1, 1);
+
+			return new CodeHtmlToken(builder.ToString());
+		}
+
+		private HtmlToken ParseParagraph()
+		{
+			var innerTags = new List<HtmlToken>();
+
+			while (IsInPlainMd && !string.IsNullOrWhiteSpace(CurrLine) && GetLineTypeTag(CurrLine) == LineType.Simple)
+			{
+				if (innerTags.Count != 0)
+					innerTags.Add(new EmptyHtmlToken("\n", 0));
+				var i = 0;
+				while (i < CurrLine.Length)
+				{
+					var tag = ParseTag(CurrLine, i);
+					var parsedToken = stringTagParserFuncMatch[tag].Invoke(CurrLine, i, "", 0);
+					i += parsedToken.Length;
+					innerTags.Add(parsedToken);
+				}
+				currLineIndex++;
+			}
+
+			return new PHtmlToken(innerTags);
 		}
 
 		private static HtmlToken ParseItalic(string currLine, int index, string alreadyParsed = "", int alreadyEscaped = 0)
@@ -166,28 +208,6 @@ namespace Markdown
 			return new AHtmlToken(urlText, returnedValue.Item3, escaped + returnedValue.Item2, baseUrl);
 		}
 
-		private HtmlToken ParseParagraph()
-		{
-			var innerTags = new List<HtmlToken>();
-
-			while (currLineIndex < plainMd.Length
-			       && !string.IsNullOrWhiteSpace(CurrLine)
-			       && GetLineTypeTag(CurrLine) == LineType.Simple)
-			{
-				var i = 0;
-				while (i < CurrLine.Length)
-				{
-					var tag = ParseTag(CurrLine, i);
-					var parsedToken = stringTagParserFuncMatch[tag].Invoke(CurrLine, i, "", 0);
-					i += parsedToken.Length;
-					innerTags.Add(parsedToken);
-				}
-				currLineIndex++;
-			}
-
-			return new PHtmlToken(innerTags);
-		}
-
 		private static Tuple<int, int, string> ParseInsideBracers(char closeBracer, int index, int escaped,
 			string alreadyParsed, string currLine)
 		{
@@ -283,6 +303,8 @@ namespace Markdown
 		{
 			if (currLine.StartsWith("#"))
 				return LineType.Header;
+			if (currLine.StartsWith("    ") || currLine.StartsWith("\t"))
+				return LineType.CodeBlock;
 			return LineType.Simple;
 		}
 
@@ -294,9 +316,8 @@ namespace Markdown
 			{
 				var htmlToken = lineTagParserFuncMatch[GetLineTypeTag(CurrLine)].Invoke();
 				root.Add(htmlToken);
-				do
+				while (currLineIndex < plainMd.Length && string.IsNullOrWhiteSpace(CurrLine) && string.IsNullOrEmpty(CurrLine))
 					currLineIndex++;
-				while (currLineIndex < plainMd.Length && string.IsNullOrWhiteSpace(CurrLine));
 			}
 
 			return root;
