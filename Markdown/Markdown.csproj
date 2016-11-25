@@ -63,6 +63,7 @@
     <Compile Include="Tokens\EmHtmlToken.cs" />
     <Compile Include="Tokens\EmptyHtmlToken.cs" />
     <Compile Include="Tokens\HtmlToken.cs" />
+    <Compile Include="Tokens\PHtmlToken.cs" />
     <Compile Include="Tokens\StrongHtmlToken.cs" />
     <Compile Include="Test\HtmlToken_Should.cs" />
     <Compile Include="Test\MD_Should.cs" />

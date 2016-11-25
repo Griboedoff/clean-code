@@ -11,15 +11,15 @@ namespace Markdown.Tokens
 
 		protected virtual bool IsTagged => !string.IsNullOrEmpty(Tag);
 
-		public virtual int Length => ParsedTokens.Sum(x => x.Length) + (Data ?? "").Length + escapedCharacters;
+		public virtual int Length => ParsedTokens.Sum(x => x.Length) + (Data ?? "").Length + EscapedCharacters;
 
-		protected readonly int escapedCharacters;
+		protected readonly int EscapedCharacters;
 
 		protected HtmlToken(string tag, string data, int escapedCharacters)
 		{
 			Tag = tag;
 			Data = data;
-			this.escapedCharacters = escapedCharacters;
+			this.EscapedCharacters = escapedCharacters;
 			ParsedTokens = new List<HtmlToken>();
 		}
 
@@ -27,7 +27,7 @@ namespace Markdown.Tokens
 		{
 			Tag = tag;
 			ParsedTokens = parsedTokens;
-			this.escapedCharacters = escapedCharacters;
+			this.EscapedCharacters = escapedCharacters;
 		}
 
 		protected virtual string InsertInToTags(string dataToInsert, CssClassInfo cssClassInfo) => IsTagged

@@ -7,7 +7,7 @@ namespace Markdown.Tokens
 		private readonly string url;
 		private readonly string baseUrl;
 		private bool IsReferece => url.StartsWith("/");
-		public override int Length => Data.Length + url.Length + 4 + escapedCharacters;
+		public override int Length => Data.Length + url.Length + 4 + EscapedCharacters;
 
 		public AHtmlToken(string data, string url, int escapedCharacters, string baseUrl) : base("a", data, escapedCharacters)
 		{
