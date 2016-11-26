@@ -109,17 +109,35 @@ namespace Markdown.Test
 			return new Md(plainMd).Render();
 		}
 
-		[TestCase("##qwe", ExpectedResult = "<h2>qwe</h2>")]
-		[TestCase("qwe\n##qwe\nqwe", ExpectedResult = "<p>qwe</p><h2>qwe</h2><p>qwe</p>")]
+		[TestCase("##qwe", ExpectedResult = "<h2>qwe</h2>", TestName = "Simple header")]
+		[TestCase("qwe\n##qwe\nqwe", ExpectedResult = "<p>qwe</p><h2>qwe</h2><p>qwe</p>",
+			 TestName = "Heaser with paragraphs")
+		]
 		public string ParseHeaderCorrectly(string plainMd)
 		{
 			return new Md(plainMd).Render();
 		}
 
-		[TestCase("    This is a code block.", ExpectedResult = "<pre><code>This is a code block.</code></pre>")]
+		[TestCase("    This is a code block.", ExpectedResult = "<pre><code>This is a code block.</code></pre>",
+			 TestName = "One line code block")]
 		[TestCase("Here is an example of AppleScript:\n\ttell application \"Foo\"\n\t\tbeep\n\tend tell",
-			 ExpectedResult = "<p>Here is an example of AppleScript:</p><pre><code>tell application \"Foo\"\n\tbeep\nend tell</code></pre>")]
-		public string 	ParseCodeBlocksCorrectly(string plainMd)
+			 ExpectedResult =
+				 "<p>Here is an example of AppleScript:</p><pre><code>tell application \"Foo\"\n\tbeep\nend tell</code></pre>",
+			 TestName = "Multiline code block")]
+		[TestCase("\t__thisIsNotTag__", ExpectedResult = "<pre><code>__thisIsNotTag__</code></pre>",
+			 TestName = "tags not render in code blocks")]
+		public string ParseCodeBlocksCorrectly(string plainMd)
+		{
+			return new Md(plainMd).Render();
+		}
+
+		[TestCase("1. Bird\n1. McHale\n1. Parish",
+			 ExpectedResult = "<ol><li>Bird</li><li>McHale</li><li>Parish</li></ol>",
+			 TestName = "List w/o paragraphs")]
+		[TestCase("1. Bird\n\n1. McHale\n1. Parish",
+			 ExpectedResult = "<ol><li><p>Bird</p></li><li>McHale</li><li>Parish</li></ol>",
+			 TestName = "List with paragraphs")]
+		public string ParseOrderedListCorrectly(string plainMd)
 		{
 			return new Md(plainMd).Render();
 		}

@@ -4,6 +4,7 @@
 	{
 		Header,
 		CodeBlock,
+		OrderedList,
 		Simple
 	}
 }

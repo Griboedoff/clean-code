@@ -26,7 +26,13 @@ namespace Markdown
 		private readonly Dictionary<LineType, Func<HtmlToken>> lineTagParserFuncMatch;
 
 		private int currLineIndex;
-		private string CurrLine => plainMd[currLineIndex];
+
+		private string CurrLine
+		{
+			get { return plainMd[currLineIndex]; }
+			set { plainMd[currLineIndex] = value; }
+		}
+
 		private bool IsInPlainMd => currLineIndex < plainMd.Length;
 
 		public Md(string plainMd, string baseUrl = "", CssClassInfo cssClassInfo = null)
@@ -47,7 +53,8 @@ namespace Markdown
 			{
 				[LineType.Header] = ParseHeader,
 				[LineType.Simple] = ParseParagraph,
-				[LineType.CodeBlock] = ParseCodeBlock
+				[LineType.CodeBlock] = ParseCodeBlock,
+				[LineType.OrderedList] = ParseOrderedList
 			};
 
 			currLineIndex = 0;
@@ -55,8 +62,7 @@ namespace Markdown
 
 		private HtmlToken ParseHeader()
 		{
-			var headerText = CurrLine.Replace("#", "");
-			headerText = headerText.Replace("\\", "");
+			var headerText = CurrLine.Replace("#", "").Replace("\\", "");
 
 			var headerImportance = CurrLine.Length - headerText.Length;
 
@@ -73,12 +79,39 @@ namespace Markdown
 				builder.Append(CurrLine.Substring(CurrLine.StartsWith("\t") ? 1 : 4));
 				builder.Append("\n");
 				currLineIndex++;
-
 			}
 
 			builder.Remove(builder.Length - 1, 1);
 
 			return new CodeHtmlToken(builder.ToString());
+		}
+
+		private HtmlToken ParseOrderedList()
+		{
+			var listItemsTokens = new List<HtmlToken>();
+
+			while (IsInPlainMd && GetLineTypeTag(CurrLine) == LineType.OrderedList)
+				listItemsTokens.Add(ParseListItem());
+
+			return new OrderedListHtmlToken(listItemsTokens);
+		}
+
+		private HtmlToken ParseListItem()
+		{
+			CurrLine = CurrLine.Substring(CurrLine.IndexOf(' ') + 1);
+
+			var parsedToken = ParseParagraph();
+
+			var isParagraph = false;
+			if (currLineIndex != plainMd.Length && string.IsNullOrWhiteSpace(CurrLine))
+			{
+				isParagraph = true;
+				currLineIndex++;
+			}
+
+			return isParagraph
+				? new ListItemHtmlToken(new List<HtmlToken> {parsedToken})
+				: ((PHtmlToken) parsedToken).ToListItem();
 		}
 
 		private HtmlToken ParseParagraph()
@@ -89,6 +122,7 @@ namespace Markdown
 			{
 				if (innerTags.Count != 0)
 					innerTags.Add(new EmptyHtmlToken("\n", 0));
+
 				var i = 0;
 				while (i < CurrLine.Length)
 				{
@@ -97,6 +131,7 @@ namespace Markdown
 					i += parsedToken.Length;
 					innerTags.Add(parsedToken);
 				}
+
 				currLineIndex++;
 			}
 
@@ -305,6 +340,8 @@ namespace Markdown
 				return LineType.Header;
 			if (currLine.StartsWith("    ") || currLine.StartsWith("\t"))
 				return LineType.CodeBlock;
+			if (char.IsDigit(currLine[0]))
+				return LineType.OrderedList;
 			return LineType.Simple;
 		}
 

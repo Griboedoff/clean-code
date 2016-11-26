@@ -66,6 +66,8 @@
     <Compile Include="Tokens\EmptyHtmlToken.cs" />
     <Compile Include="Tokens\HHtmlToken.cs" />
     <Compile Include="Tokens\HtmlToken.cs" />
+    <Compile Include="Tokens\ListItemHtmlToken.cs" />
+    <Compile Include="Tokens\OrderedListHtmlToken.cs" />
     <Compile Include="Tokens\PHtmlToken.cs" />
     <Compile Include="Tokens\StrongHtmlToken.cs" />
     <Compile Include="Test\HtmlToken_Should.cs" />

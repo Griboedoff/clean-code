@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown.Tokens
 {
@@ -13,5 +12,9 @@ namespace Markdown.Tokens
 		{
 		}
 
+		public ListItemHtmlToken ToListItem()
+		{
+			return new ListItemHtmlToken(ParsedTokens);
+		}
 	}
 }
