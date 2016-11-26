@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{9ED89DE1-D257-450E-B66C-3B28D10F331D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{E6825F19-EE20-40A7-AE68-22051E2AF040}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,18 @@ Global
 		{9ED89DE1-D257-450E-B66C-3B28D10F331D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9ED89DE1-D257-450E-B66C-3B28D10F331D}.Release|x86.ActiveCfg = Release|Any CPU
 		{9ED89DE1-D257-450E-B66C-3B28D10F331D}.Release|x86.Build.0 = Release|Any CPU
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Debug|Mixed Platforms.ActiveCfg = Debug|Mixed Platforms
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Debug|Mixed Platforms.Build.0 = Debug|Mixed Platforms
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Debug|x86.ActiveCfg = Debug|x86
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Debug|x86.Build.0 = Debug|x86
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Release|Mixed Platforms.ActiveCfg = Release|Mixed Platforms
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Release|Mixed Platforms.Build.0 = Release|Mixed Platforms
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Release|x86.ActiveCfg = Release|x86
+		{E6825F19-EE20-40A7-AE68-22051E2AF040}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
