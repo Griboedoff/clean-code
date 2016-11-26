@@ -10,71 +10,71 @@ namespace Markdown.Test
 	[TestFixture]
 	internal class Md_Should
 	{
-		[TestCase("qwe asd zxc", ExpectedResult = "<p>qwe asd zxc</p>")]
+		[TestCase("qwe asd zxc", ExpectedResult = "qwe asd zxc")]
 		public string ParseNoMarkup(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase("_asd_", ExpectedResult = "<p><em>asd</em></p>")]
-		[TestCase("_a s d_", ExpectedResult = "<p><em>a s d</em></p>")]
-		[TestCase("_1_2_3_", ExpectedResult = "<p><em>1_2_3</em></p>")]
-		[TestCase("_a_ _s d_", ExpectedResult = "<p><em>a</em> <em>s d</em></p>")]
-		[TestCase("_a_ _s d", ExpectedResult = "<p><em>a</em> _s d</p>")]
-		[TestCase("_aas__abc__abc_", ExpectedResult = "<p><em>aas__abc__abc</em></p>")]
+		[TestCase("_asd_", ExpectedResult = "<em>asd</em>")]
+		[TestCase("_a s d_", ExpectedResult = "<em>a s d</em>")]
+		[TestCase("_1_2_3_", ExpectedResult = "<em>1_2_3</em>")]
+		[TestCase("_a_ _s d_", ExpectedResult = "<em>a</em> <em>s d</em>")]
+		[TestCase("_a_ _s d", ExpectedResult = "<em>a</em> _s d")]
+		[TestCase("_aas__abc__abc_", ExpectedResult = "<em>aas__abc__abc</em>")]
 		public string ParseEmTagCorrectly(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase("_ d_", ExpectedResult = "<p>_ d_</p>")]
-		[TestCase("_a _", ExpectedResult = "<p>_a _</p>")]
-		[TestCase("__ d__", ExpectedResult = "<p>__ d__</p>")]
-		[TestCase("__a __", ExpectedResult = "<p>__a __</p>")]
-		[TestCase("_ abc_abc_", ExpectedResult = "<p>_ abc<em>abc</em></p>")]
+		[TestCase("_ d_", ExpectedResult = "_ d_")]
+		[TestCase("_a _", ExpectedResult = "_a _")]
+		[TestCase("__ d__", ExpectedResult = "__ d__")]
+		[TestCase("__a __", ExpectedResult = "__a __")]
+		[TestCase("_ abc_abc_", ExpectedResult = "_ abc<em>abc</em>")]
 		public string ParseTrailingWhitespaceCorrectly(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase("_ab cd", ExpectedResult = "<p>_ab cd</p>")]
-		[TestCase("__ab cd", ExpectedResult = "<p>__ab cd</p>")]
+		[TestCase("_ab cd", ExpectedResult = "_ab cd")]
+		[TestCase("__ab cd", ExpectedResult = "__ab cd")]
 		public string ParseNoMarkup_IfMissingCloseTag(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase(@"_a\_b_", ExpectedResult = "<p><em>a_b</em></p>")]
-		[TestCase(@"__a\_b__", ExpectedResult = "<p><strong>a_b</strong></p>")]
-		[TestCase(@"a\_b", ExpectedResult = "<p>a_b</p>")]
+		[TestCase(@"_a\_b_", ExpectedResult = "<em>a_b</em>")]
+		[TestCase(@"__a\_b__", ExpectedResult = "<strong>a_b</strong>")]
+		[TestCase(@"a\_b", ExpectedResult = "a_b")]
 		public string ParseEscapedCorrectly(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase("__abc_abc", ExpectedResult = "<p>__abc_abc</p>")]
-		[TestCase("__abc_abc_", ExpectedResult = "<p>__abc<em>abc</em></p>")]
-		[TestCase("_abc__abc", ExpectedResult = "<p>_abc__abc</p>")]
-		[TestCase("_abc__abc__", ExpectedResult = "<p>_abc__abc__</p>")]
+		[TestCase("__abc_abc", ExpectedResult = "__abc_abc")]
+		[TestCase("__abc_abc_", ExpectedResult = "__abc<em>abc</em>")]
+		[TestCase("_abc__abc", ExpectedResult = "_abc__abc")]
+		[TestCase("_abc__abc__", ExpectedResult = "_abc__abc__")]
 		public string ParseUnpairTags(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase("__abc__", ExpectedResult = "<p><strong>abc</strong></p>")]
-		[TestCase("__abc_abc_abc__", ExpectedResult = "<p><strong>abc<em>abc</em>abc</strong></p>")]
+		[TestCase("__abc__", ExpectedResult = "<strong>abc</strong>")]
+		[TestCase("__abc_abc_abc__", ExpectedResult = "<strong>abc<em>abc</em>abc</strong>")]
 		public string ParseStrongTagCorrectrly(string plainMd)
 		{
-			return new Md(plainMd).Render();
+			return TrimPTag(new Md(plainMd).Render());
 		}
 
-		[TestCase("[url](www.url.com)", "", ExpectedResult = "<p><a href=\"www.url.com\">url</a></p>")]
-		[TestCase("[url](/url)", "www.base.com", ExpectedResult = "<p><a href=\"www.base.com/url\">url</a></p>")]
+		[TestCase("[url](www.url.com)", "", ExpectedResult = "<a href=\"www.url.com\">url</a>")]
+		[TestCase("[url](/url)", "www.base.com", ExpectedResult = "<a href=\"www.base.com/url\">url</a>")]
 		[TestCase("[url](www.url.com)\n[url](/url)", "www.base.com",
-			 ExpectedResult = "<p><a href=\"www.url.com\">url</a>\n<a href=\"www.base.com/url\">url</a></p>")]
+			 ExpectedResult = "<a href=\"www.url.com\">url</a>\n<a href=\"www.base.com/url\">url</a>")]
 		public string ParseUrlTagCorrectrly(string plainMd, string baseUrl)
 		{
-			return new Md(plainMd, baseUrl).Render();
+			return  TrimPTag(new Md(plainMd, baseUrl).Render());
 		}
 
 		[TestCase("_asd_", "css", "", ExpectedResult = "<p class=\"css\"><em class=\"css\">asd</em></p>", TestName = "No def")
@@ -140,6 +140,15 @@ namespace Markdown.Test
 		public string ParseOrderedListCorrectly(string plainMd)
 		{
 			return new Md(plainMd).Render();
+		}
+
+		private static string TrimPTag(string html)
+		{
+			if (html.StartsWith("<p>"))
+				html = html.Substring(3);
+			if (html.EndsWith("</p>"))
+				html = html.Substring(0, html.Length - 4);
+			return html;
 		}
 
 		private static string GenerateMdTag(Tag tag, int length)
