@@ -10,6 +10,8 @@ namespace Markdown
 		public static readonly Tag Em = new Tag("_", "em");
 		public static readonly Tag Strong = new Tag("__", "strong");
 		public static readonly Tag Empty = new Tag("", "");
+		public static readonly Tag A = new Tag("", "a");
+		public static readonly Tag H = new Tag("#", "h");
 		private static readonly List<Tag> Tags = new List<Tag> {Em, Strong, Empty};
 
 		private Tag(string md, string html)
@@ -18,7 +20,10 @@ namespace Markdown
 			Html = html;
 		}
 
-		public static Tag GetRandomTag(Random rnd) => Tags[rnd.Next(Tags.Count)];
+		public static Tag GetRandomTag(Random rnd)
+		{
+			return Tags[rnd.Next(Tags.Count)];
+		}
 
 		public override bool Equals(object other)
 		{
