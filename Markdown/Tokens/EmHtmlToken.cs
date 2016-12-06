@@ -4,14 +4,15 @@ namespace Markdown.Tokens
 {
 	public class EmHtmlToken : HtmlToken
 	{
-		public override int Length => base.Length + 2;
+		//Todo Непонятно. Выглядит как какой-то хак
+		public int Length => base.Length + 2;
 
-		public EmHtmlToken(string data, int escapedCharacters) : base("em", data, escapedCharacters)
+		public EmHtmlToken(string data, int escapedCharsCount) : base("em", data, escapedCharsCount)
 		{
 		}
 
-		public EmHtmlToken(List<HtmlToken> parsedTokens, int escapedCharacters)
-			: base("em", parsedTokens, escapedCharacters)
+		public EmHtmlToken(List<HtmlToken> parsedTokens, int escapedCharsCount)
+			: base("em", parsedTokens, escapedCharsCount)
 		{
 		}
 	}

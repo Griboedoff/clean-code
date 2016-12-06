@@ -14,7 +14,7 @@ namespace Markdown.Tokens
 
 		public override string Render(CssClassInfo cssClassInfo)
 		{
-			return InsertInToTags("pre", InsertInToTags(Data, cssClassInfo), cssClassInfo);
+			return WrapWithTag("pre", WrapWithTag(Data, cssClassInfo), cssClassInfo);
 		}
 	}
 }

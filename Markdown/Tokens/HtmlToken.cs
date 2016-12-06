@@ -3,41 +3,47 @@ using System.Linq;
 
 namespace Markdown.Tokens
 {
+	//Todo много однотипных классов XxxHtmlToken - цель?
 	public abstract class HtmlToken
 	{
 		protected readonly string Tag;
 		protected readonly List<HtmlToken> ParsedTokens;
 		protected readonly string Data;
 
-		protected virtual bool IsTagged => !string.IsNullOrEmpty(Tag);
+		public int Length;
 
-		public virtual int Length => ParsedTokens.Sum(x => x.Length) + (Data ?? "").Length + EscapedCharacters;
+		protected readonly int EscapedCharsCount;
 
-		protected readonly int EscapedCharacters;
-
-		protected HtmlToken(string tag, string data, int escapedCharacters)
+		protected HtmlToken(string tag, string data, int escapedCharsCount)
 		{
 			Tag = tag;
 			Data = data;
-			EscapedCharacters = escapedCharacters;
+			EscapedCharsCount = escapedCharsCount;
 			ParsedTokens = new List<HtmlToken>();
+			Length = CalcLength();
 		}
 
-		protected HtmlToken(string tag, List<HtmlToken> parsedTokens, int escapedCharacters)
+		protected HtmlToken(string tag, List<HtmlToken> parsedTokens, int escapedCharsCount)
 		{
 			Tag = tag;
 			ParsedTokens = parsedTokens;
-			EscapedCharacters = escapedCharacters;
+			EscapedCharsCount = escapedCharsCount;
+			Length = CalcLength();
 		}
 
-		protected virtual string InsertInToTags(string dataToInsert, CssClassInfo cssClassInfo)
+		private int CalcLength()
 		{
-			return IsTagged
-				? InsertInToTags(Tag, dataToInsert, cssClassInfo)
+			return ParsedTokens.Sum(x => x.Length) + (Data ?? "").Length + EscapedCharsCount;
+		}
+
+		protected virtual string WrapWithTag(string dataToInsert, CssClassInfo cssClassInfo)
+		{
+			return !string.IsNullOrEmpty(Tag)
+				? WrapWithTag(Tag, dataToInsert, cssClassInfo)
 				: dataToInsert;
 		}
 
-		protected virtual string InsertInToTags(string tag, string dataToInsert, CssClassInfo cssClassInfo)
+		protected virtual string WrapWithTag(string tag, string dataToInsert, CssClassInfo cssClassInfo)
 		{
 			return $"<{tag}{GetCssClassDef(cssClassInfo)}>{dataToInsert}</{tag}>";
 		}
@@ -50,8 +56,8 @@ namespace Markdown.Tokens
 		public virtual string Render(CssClassInfo cssClassInfo)
 		{
 			return ParsedTokens.Count > 0
-				? InsertInToTags(string.Join("", ParsedTokens.Select(token => token.Render(cssClassInfo))), cssClassInfo)
-				: InsertInToTags(Data, cssClassInfo);
+				? WrapWithTag(string.Join("", ParsedTokens.Select(token => token.Render(cssClassInfo))), cssClassInfo)
+				: WrapWithTag(Data, cssClassInfo);
 		}
 	}
 }
