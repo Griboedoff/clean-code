@@ -8,7 +8,9 @@ namespace Markdown
 {
 	public class Md
 	{
+		//Todo plainMd - ассоциация с plainText-ом, а тип - массив строк.
 		private readonly string[] plainMd;
+
 		private readonly string baseUrl;
 		private readonly CssClassInfo cssClassInfo;
 
@@ -27,6 +29,7 @@ namespace Markdown
 
 		private int currLineIndex;
 
+		//Todo Зачем нужна CurrLine? Может вообще лучше формальную грамматику сделать? Sprache
 		private string CurrLine
 		{
 			get { return plainMd[currLineIndex]; }
@@ -60,10 +63,11 @@ namespace Markdown
 			currLineIndex = 0;
 		}
 
+		//Todo в spec.md ничего не нашел про Header
 		private HtmlToken ParseHeader()
 		{
+			//Todo .Replace("\\", "") - это зачем?
 			var headerText = CurrLine.Replace("#", "").Replace("\\", "");
-
 			var headerImportance = CurrLine.Length - headerText.Length;
 
 			currLineIndex++;
@@ -274,10 +278,13 @@ namespace Markdown
 			return htmlToken;
 		}
 
+		//Todo непонятное имя: не внутри цифр
 		private static bool NotInsideDigits(int tagIndex, string currLine)
 		{
-			if (tagIndex + 1 == currLine.Length || tagIndex - 1 == -1)
+			//Todo tagIndex == 0
+			if(tagIndex + 1 == currLine.Length || tagIndex - 1 == -1)
 				return true;
+			//Todo !char.IsDigit(currLine[tagIndex + 1]) - tag всегда из 1 символа?
 			return !char.IsDigit(currLine[tagIndex - 1]) && !char.IsDigit(currLine[tagIndex + 1]);
 		}
 
@@ -327,6 +334,8 @@ namespace Markdown
 				return Tag.A;
 			if (currLine[tagIndex] != '_')
 				return Tag.Empty;
+			
+			//Todo непонятно
 			if (tagIndex == currLine.Length - 1)
 				return Tag.Em;
 			return currLine[tagIndex + 1] == '_'
@@ -338,6 +347,8 @@ namespace Markdown
 		{
 			if (currLine.StartsWith("#"))
 				return LineType.Header;
+
+			//Todo у некоторых людей сдвиги по 2 пробела. Константы в коде
 			if (currLine.StartsWith("    ") || currLine.StartsWith("\t"))
 				return LineType.CodeBlock;
 			if (char.IsDigit(currLine[0]))

@@ -180,6 +180,7 @@ namespace Markdown.Test
 			return md.ToString();
 		}
 
+		//Todo зачем нужен этот тест? Линейность? Переписать нормально
 		[Test]
 		[Explicit]
 		public void PerformanceTest()

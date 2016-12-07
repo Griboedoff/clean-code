@@ -5,8 +5,11 @@ namespace Markdown
 {
 	public class Tag
 	{
+		//Todo непонятно, что это
 		public string Md { get; }
+
 		public string Html { get; }
+
 		public static readonly Tag Em = new Tag("_", "em");
 		public static readonly Tag Strong = new Tag("__", "strong");
 		public static readonly Tag Empty = new Tag("", "");
